@@ -201,3 +201,153 @@ function partition(array, f){
     return [filter(array,f), reject(array,f)];
 }
 module.exports.partition = partition;
+
+/** map: Apply a function to every element in a collection,
+*        returning a new collection of all the functions results 
+*   
+*   @param {Array, Object} collection: The colleciton to transform
+*   @param {Function} f: The function used to transform the elements of the collection.
+*   @return {Array, Object}: A collection with the results of the function calls
+*                            in the place of the input collection's elements.
+*/
+function map(collection, f){
+    var result = [];
+    if(Array.isArray(collection)){
+        for(var i = 0; i < collection.length; i++){
+          result.push(f(collection[i], i, collection));
+        }
+      
+    }else{
+        for(var key in collection){
+            result.push(f(collection[key], key, collection));
+          }
+    }
+
+    return result;
+}
+module.exports.map = map;
+
+/** pluck: Using an array of objects, create an array
+*          containing a specific property of each of thos objets
+*   
+*   @param {Array} array: The array of objects
+*   @param {String} key: The key of the property to grab
+*   @return {Array}: An array made of all the former properties.
+*/
+function pluck(array, key){
+    var f = (object) => object[key]
+    return map(array, f);
+}
+
+module.exports.pluck = pluck;
+
+/** every: Accept a collection and function. Return true iff
+*          every element of that collection causes the function
+*          to return true. (return false otherwise)
+*   
+*   @param {Array, Object} collection: The colleciton to search for
+                                       a failing element.
+*   @param {Function} f: The function used to test the elements of the collection.
+*                        Must accept the collection elements and return a boolean.
+*   @return {Boolean}: Whether all elements pass the test from the input "f".
+*/
+function every(collection, f){
+    if(f === undefined){
+        f = identity;
+    }
+    var boolArray = map(collection,f);
+
+    for(var i = 0; i < boolArray.length; i++){
+        if(!boolArray[i]){
+            return false;
+        }
+    }
+
+    return true;
+}
+
+module.exports.every = every;
+
+/** some: Accept a collection and function. Return false iff
+*          every element of that collection causes the function
+*          to return false. (return true otherwise)
+*   
+*   @param {Array, Object} collection: The colleciton to search for
+                                       a passing element.
+*   @param {Function} f: The function used to test the elements of the collection.
+*                        Must accept the collection elements and return a boolean.
+*   @return {Boolean}: Whether any elements pass the test from the input "f".
+*/
+function some(collection, f){
+    if(f === undefined){
+        f = identity;
+    }
+    var boolArray = map(collection,f);
+
+    for(var i = 0; i < boolArray.length; i++){
+        if(boolArray[i]){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+module.exports.some = some;
+
+/** reduce: Call function for every element in the array, passing
+*           in the previous result for calling said function
+*   
+*   @param {Array} array: The elements which must be pass through the function
+*   @param {Function} f: The function used to accumulate information from the
+*                        the various elements of the array. Must accept an accumulator,
+*                        value-form-array, and index. The return data type must be
+*                        the same as the accumulator input.
+*   @param {any} seed: An element to use as the first accumulator input before the first
+*                      time f is called. Must be the same data type as the accumulator
+*                      input of f.
+*                         
+*   @return {any}: The final result of f processing the elements of the array.
+*/
+function reduce(array, f, seed){
+    var i = 0;
+
+    if(seed === undefined){
+        seed = array[0];
+        i++;
+    }
+
+    for(; i < array.length; i++){
+        seed = f(seed, array[i], i);
+    }
+
+    return seed;
+}
+
+module.exports.reduce = reduce;
+
+/** extend: Add the properties of all objects except the first
+*           in this function's arguments to the first object, then
+*           return the first object.
+*   
+*   @param {Object} obj1: The Object to graft all these properties to.
+*   @param {Object} (anon): The Object whose properties should be grafted
+*                           to the first argument. Can have any number of 
+*                           parameters here.
+*                         
+*   @return {Object}: obj1, after it has been modified.
+*/
+function extend(){
+    var object = arguments[0];
+    for(var i = 1; i < arguments.length; i++){
+        var currentObject = arguments[i];
+        for(var key in currentObject){
+            object[key] = currentObject[key];
+        }
+    }
+
+    return object;
+}
+
+module.exports.extend = extend;
+
